@@ -15,6 +15,7 @@ builder.Services.AddControllers();
 builder.Services.AddPipelinesLayer()
     .AddInfrastructureLayer();
 
+
 // TODO: Normalize configuration access.
 builder.Services.AddHttpClient<ITelegramBotClient, TelegramBotClient>(
     (client, sp) => new TelegramBotClient(builder.Configuration["Telegram:Token"]!, client)
