@@ -1,0 +1,6 @@
+@Musicality_HostAddress = http://localhost:5072
+
+GET {{Musicality_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

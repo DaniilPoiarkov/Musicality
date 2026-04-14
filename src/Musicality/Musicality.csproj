@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <UserSecretsId>c1f469b5-e6c9-46d4-a4fb-01cd3c3327b7</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+	  <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Musicality.Application\Musicality.Application.csproj" />
+    <ProjectReference Include="..\Musicality.Persistence\Musicality.Persistence.csproj" />
+    <ProjectReference Include="..\Musicality.Pipelines\Musicality.Pipelines.csproj" />
+  </ItemGroup>
+
+</Project>

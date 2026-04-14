@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Musicality.Application/Musicality.Application.csproj" />
+    <Project Path="src/Musicality.Domain/Musicality.Domain.csproj" />
+    <Project Path="src/Musicality.Infrastructure/Musicality.Infrastructure.csproj" />
+    <Project Path="src/Musicality.Persistence/Musicality.Persistence.csproj" />
+    <Project Path="src/Musicality.Pipelines/Musicality.Pipelines.csproj" />
+    <Project Path="src/Musicality/Musicality.csproj" />
+  </Folder>
+  <Folder Name="/src/Common/">
+    <Project Path="src/Common/Musicality.Common/Musicality.Common.csproj" />
+  </Folder>
+</Solution>

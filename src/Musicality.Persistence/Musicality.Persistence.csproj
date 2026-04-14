@@ -1,0 +1,6 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\Musicality.Domain\Musicality.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
