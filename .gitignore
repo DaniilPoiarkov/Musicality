@@ -295,7 +295,7 @@ appsettings.Local.json
 .terraform
 *.tfvars
 *.hcl
-infrastructure/states
-infrastructure/tfvars
+*.tfstate
+infrastructure/*/states
+infrastructure/*/tfvars
 infrastructure/env
-infrastructure/apps
