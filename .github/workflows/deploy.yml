@@ -3,7 +3,7 @@ name: Build and deploy to an Azure
 env:
   DOTNET_VERSION: '10.0.*'
   DOTNET_CONFIGURATION: 'Release'
-  DOCKERFILE: './web-api.docerfile'
+  DOCKERFILE: './web-api.dockerfile'
   REPO:
 
 on:
