@@ -31,7 +31,10 @@ var app = builder.Build();
 using var scope = app.Services.CreateScope();
 var bot = scope.ServiceProvider.GetRequiredService<ITelegramBotClient>();
 
-await bot.SetWebhook($"https://set-url/api/telegram/_handle"); // TODO: Set URL.
+// TODO: Refactor
+await bot.SetWebhook(builder.Configuration["Telegram:WebhookUrl"]
+    ?? throw new InvalidOperationException("Cannot start an app without webhook url provided.")
+);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
