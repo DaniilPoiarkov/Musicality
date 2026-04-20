@@ -4,6 +4,7 @@ env:
   DOTNET_VERSION: '10.0.*'
   DOTNET_CONFIGURATION: 'Release'
   DOCKERFILE: './web-api.dockerfile'
+  IMAGE_PREFIX: ${{ case(github.ref_name == 'main', '', 'dev-') }}
   REPO:
 
 on:
@@ -23,6 +24,13 @@ permissions:
   pull-requests: write
 
 jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: show configuration
+        run: |
+          echo "${{ vars.AZURE_WEBAPP_NAME }} / ${{ env.IMAGE_PREFIX }} / ${{ secrets.AZURE_SP_CICD != '' && secrets.AZURE_SP_CICD != null }}"
+
   build-and-test:
     runs-on: ubuntu-latest
 
@@ -103,7 +111,7 @@ jobs:
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ vars.AZURE_WEBAPP_NAME }}
-          images: 'ghcr.io/${{ env.REPO }}:latest'
+          images: 'ghcr.io/${{ env.REPO }}:${{ env.IMAGE_PREFIX }}latest'
 
       - name: Logout from Azure
         run: |

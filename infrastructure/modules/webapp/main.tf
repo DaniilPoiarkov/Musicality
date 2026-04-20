@@ -16,15 +16,21 @@ resource "azurerm_service_plan" "asp" {
 }
 
 resource "azurerm_linux_web_app" "app" {
-  service_plan_id     = azurerm_service_plan.asp.id
-  resource_group_name = var.resource_group
-  name                = "app-${var.product_name}-${var.environment}"
-  location            = var.location
-  https_only          = true
-  tags                = local.tags
+  service_plan_id                                = azurerm_service_plan.asp.id
+  resource_group_name                            = var.resource_group
+  name                                           = "app-${var.product_name}-${var.environment}"
+  location                                       = var.location
+  https_only                                     = true
+  tags                                           = local.tags
+  ftp_publish_basic_authentication_enabled       = false
+  webdeploy_publish_basic_authentication_enabled = false
 
   site_config {
-    always_on = (var.sku != "F1" && var.sku != "Free")
+    always_on           = (var.sku != "F1" && var.sku != "Free")
+    api_definition_url  = "https://${var.product_name}-${var.environment}-app.azurewebsites.net/swagger/index.html"
+    ftps_state          = "FtpsOnly"
+    http2_enabled       = true
+    minimum_tls_version = "1.3"
 
     application_stack {
       docker_registry_url      = "https://ghcr.io"
@@ -32,11 +38,6 @@ resource "azurerm_linux_web_app" "app" {
       docker_registry_password = var.docker_password
       docker_image_name        = "musicality"
     }
-
-    api_definition_url  = "https://${var.product_name}-${var.environment}-app.azurewebsites.net/swagger/index.html"
-    ftps_state          = "FtpsOnly"
-    http2_enabled       = true
-    minimum_tls_version = "1.3"
   }
 
   logs {
@@ -55,9 +56,10 @@ resource "azurerm_linux_web_app" "app" {
 
   app_settings = {
     ASPNETCORE_ENVIRONMENT                     = var.environment
+    APPLICATIONINSIGHTS_CONNECTION_STRING      = var.app_insights_connection_string
     ApplicationInsightsAgent_EXTENSION_VERSION = "~3"
     XDT_MicrosoftApplicationInsights_Mode      = "Recommended"
-    APPLICATIONINSIGHTS_CONNECTION_STRING      = var.app_insights_connection_string
+    Telegram__WebhookUrl                       = "https://${var.product_name}-${var.environment}-app.azurewebsites.net"
   }
 
   sticky_settings {
@@ -65,7 +67,17 @@ resource "azurerm_linux_web_app" "app" {
       "ASPNETCORE_ENVIRONMENT",
       "APPLICATIONINSIGHTS_CONNECTION_STRING",
       "ApplicationInsightsAgent_EXTENSION_VERSION",
-      "XDT_MicrosoftApplicationInsights_Mode"
+      "XDT_MicrosoftApplicationInsights_Mode",
+      "Telegram__WebhookUrl"
     ]
   }
 }
+
+# resource "azurerm_app_service_source_control" "source" {
+#   app_id = azurerm_linux_web_app.app.id
+#   repo_url = ""
+#   branch = ""
+#   github_action_configuration {
+
+#   }
+# }
