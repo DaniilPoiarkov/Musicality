@@ -59,7 +59,7 @@ resource "azurerm_linux_web_app" "app" {
     APPLICATIONINSIGHTS_CONNECTION_STRING      = var.app_insights_connection_string
     ApplicationInsightsAgent_EXTENSION_VERSION = "~3"
     XDT_MicrosoftApplicationInsights_Mode      = "Recommended"
-    Telegram__WebhookUrl                       = "https://${var.product_name}-${var.environment}-app.azurewebsites.net"
+    Telegram__WebhookUrl                       = "https://${var.product_name}-${var.environment}-app.azurewebsites.net/api/telegram/_handle"
   }
 
   sticky_settings {
