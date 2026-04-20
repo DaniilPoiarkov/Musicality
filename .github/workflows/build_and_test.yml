@@ -9,7 +9,7 @@ on:
     branches: develop
     paths:
       - 'src/**'
-      - 'test/**'
+      - 'tests/**'
       - '**.props'
       - '**.slnx'
   workflow_dispatch:
@@ -43,7 +43,7 @@ jobs:
         --no-restore
 
     - name: Run tests
-      run: dotnet test ./Musicality.slnx
+      run: dotnet test --solution ./Musicality.slnx
         --configuration ${{ env.DOTNET_CONFIGURATION }}
         --no-build
         --logger trx
