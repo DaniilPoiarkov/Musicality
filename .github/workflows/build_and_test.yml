@@ -46,9 +46,8 @@ jobs:
       run: dotnet test --solution ./Musicality.slnx
         --configuration ${{ env.DOTNET_CONFIGURATION }}
         --no-build
-        --logger trx
         --results-directory ${{ github.workspace }}/test-results
-        --collect "XPlat Code Coverage;Format=Cobertura"
+        --report-xunit-trx
 
     - name: Generate code coverage report
       uses: danielpalme/ReportGenerator-GitHub-Action@5.2.4
