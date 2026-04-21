@@ -26,6 +26,8 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
+    environment:
+      name: ${{ case(github.ref_name == 'main', 'production', 'develop') }}
     steps:
       - name: show configuration
         run: |
@@ -85,7 +87,7 @@ jobs:
         uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09 # v5.0.0
         with:
           push: true
-          tags: ghcr.io/${{ env.REPO }}:latest
+          tags: ghcr.io/${{ env.REPO }}:${{ env.IMAGE_PREFIX }}latest
           file: ${{ env.DOCKERFILE }}
 
   deploy:
