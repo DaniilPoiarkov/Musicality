@@ -9,5 +9,8 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\Musicality.Application\Musicality.Application.csproj" />
 	</ItemGroup>
+	<ItemGroup>
+		<Reference Include=".\libs\Eclipse.Core.dll" />
+	</ItemGroup>
 
 </Project>
