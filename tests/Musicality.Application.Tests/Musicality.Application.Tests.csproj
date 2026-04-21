@@ -20,6 +20,10 @@
 		</PackageReference>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\..\src\Musicality.Application\Musicality.Application.csproj" />
+	</ItemGroup>
+
   <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
