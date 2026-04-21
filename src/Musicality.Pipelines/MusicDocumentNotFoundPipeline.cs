@@ -20,12 +20,25 @@ namespace Musicality.Pipelines;
 /// Handles document spreadsheet uploads when message text is empty (Core routes those updates to <see cref="INotFoundPipeline"/>).
 /// </summary>
 [Route("", "")]
-internal sealed class MusicDocumentNotFoundPipeline(
-    ISpreadsheetManager spreadsheetManager,
-    ILogger<MusicDocumentNotFoundPipeline> logger,
-    ITelegramBotClient botClient,
-    IUpdateAccessor updateAccessor) : PipelineBase(), INotFoundPipeline
+internal sealed class MusicDocumentNotFoundPipeline : PipelineBase, INotFoundPipeline
 {
+    private readonly ISpreadsheetManager _spreadsheetManager;
+    private readonly ILogger<MusicDocumentNotFoundPipeline> _logger;
+    private readonly ITelegramBotClient _botClient;
+    private readonly IUpdateAccessor _updateAccessor;
+
+    public MusicDocumentNotFoundPipeline(
+        ISpreadsheetManager spreadsheetManager,
+        ILogger<MusicDocumentNotFoundPipeline> logger,
+        ITelegramBotClient botClient,
+        IUpdateAccessor updateAccessor)
+    {
+        _spreadsheetManager = spreadsheetManager;
+        _logger = logger;
+        _botClient = botClient;
+        _updateAccessor = updateAccessor;
+    }
+
     protected override void Initialize()
     {
         RegisterStage(ProcessDocumentAsync);
@@ -33,7 +46,7 @@ internal sealed class MusicDocumentNotFoundPipeline(
 
     private async Task<IResult> ProcessDocumentAsync(MessageContext context, CancellationToken cancellationToken)
     {
-        var update = updateAccessor.Update;
+        var update = _updateAccessor.Update;
 
         if (update?.Message?.Document is null)
         {
@@ -43,9 +56,9 @@ internal sealed class MusicDocumentNotFoundPipeline(
         var message = update.Message!;
         using var ms = new MemoryStream();
 
-        await botClient.GetInfoAndDownloadFile(message.Document!.FileId, ms, cancellationToken);
+        await _botClient.GetInfoAndDownloadFile(message.Document!.FileId, ms, cancellationToken);
 
-        var records = await spreadsheetManager.Read<MusicUrlRecord>(ms, cancellationToken: cancellationToken);
+        var records = await _spreadsheetManager.Read<MusicUrlRecord>(ms, cancellationToken: cancellationToken);
 
         using var youtube = new YoutubeClient();
 
@@ -65,7 +78,7 @@ internal sealed class MusicDocumentNotFoundPipeline(
 
             if (audioStreamInfo is null)
             {
-                logger.LogWarning("No suitable audio streams found for URL {Url}", record.Url);
+                _logger.LogWarning("No suitable audio streams found for URL {Url}", record.Url);
                 return Empty();
             }
 
@@ -78,7 +91,7 @@ internal sealed class MusicDocumentNotFoundPipeline(
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Failed to download or queue audio for URL {Url}", record.Url);
+                _logger.LogError(ex, "Failed to download or queue audio for URL {Url}", record.Url);
                 if (File.Exists(destinationPath))
                 {
                     File.Delete(destinationPath);

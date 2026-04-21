@@ -1,13 +1,22 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
+using Microsoft.Extensions.Configuration;
+
 namespace Musicality;
 
-internal sealed class TelegramSecretTokenFilter(IConfiguration configuration) : IAsyncActionFilter
+internal sealed class TelegramSecretTokenFilter : IAsyncActionFilter
 {
+    private readonly IConfiguration _configuration;
+
+    public TelegramSecretTokenFilter(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
+
     public Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
-        var secret = configuration["Telegram:SecretToken"];
+        var secret = _configuration["Telegram:SecretToken"];
         if (string.IsNullOrEmpty(secret))
         {
             return next();
