@@ -37,7 +37,7 @@ variable "docker_password" {
 
 variable "docker_image_name" {
   description = "Docker image"
-  type        = string 
+  type        = string
 }
 
 variable "app_insights_connection_string" {
