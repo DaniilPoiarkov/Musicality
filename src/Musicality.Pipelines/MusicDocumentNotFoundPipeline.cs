@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Musicality.Common;
 
 using Telegram.Bot;
-using Telegram.Bot.Types;
 
 using YoutubeExplode;
 using YoutubeExplode.Videos.Streams;

@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-using Microsoft.Extensions.Configuration;
-
 namespace Musicality;
 
 internal sealed class TelegramSecretTokenFilter : IAsyncActionFilter
