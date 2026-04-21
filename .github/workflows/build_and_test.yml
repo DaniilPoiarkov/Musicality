@@ -9,7 +9,7 @@ on:
     branches: develop
     paths:
       - 'src/**'
-      - 'test/**'
+      - 'tests/**'
       - '**.props'
       - '**.slnx'
   workflow_dispatch:
@@ -56,7 +56,7 @@ jobs:
         reports: ${{ github.workspace }}/test-results/**/*.xml
         targetdir: ${{ github.workspace }}/coverage-reports
         reporttypes: cobertura;Html_Dark;MarkdownSummaryGithub
-        assemblyfilters: '-*.Tests;-*.Infrastructure;-*.DataAccess'
+        assemblyfilters: '-*.Tests;-*.Infrastructure;-*.Persistance'
         classfilters: '-*Module;-*Configuration;-*.Generated'
         verbosity: Info
         title: Code Coverage

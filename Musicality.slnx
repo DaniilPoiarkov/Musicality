@@ -15,4 +15,7 @@
   <Folder Name="/src/Common/">
     <Project Path="src/Common/Musicality.Common/Musicality.Common.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Musicality.Application.Tests/Musicality.Application.Tests.csproj" Id="bb6d51c2-0c29-4b25-a92e-1010c0e76081" />
+  </Folder>
 </Solution>
