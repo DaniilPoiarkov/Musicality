@@ -36,7 +36,7 @@ resource "azurerm_linux_web_app" "app" {
       docker_registry_url      = "https://ghcr.io"
       docker_registry_username = var.docker_username
       docker_registry_password = var.docker_password
-      docker_image_name        = "musicality"
+      docker_image_name        = var.docker_image_name
     }
   }
 
@@ -60,6 +60,8 @@ resource "azurerm_linux_web_app" "app" {
     ApplicationInsightsAgent_EXTENSION_VERSION = "~3"
     XDT_MicrosoftApplicationInsights_Mode      = "Recommended"
     Telegram__WebhookUrl                       = "https://${var.product_name}-${var.environment}-app.azurewebsites.net/api/telegram/_handle"
+    Telegram__SecretToken                      = var.telegram_secret_token
+    Telegram__Token                            = var.telegram_bot_token
   }
 
   sticky_settings {
@@ -72,12 +74,3 @@ resource "azurerm_linux_web_app" "app" {
     ]
   }
 }
-
-# resource "azurerm_app_service_source_control" "source" {
-#   app_id = azurerm_linux_web_app.app.id
-#   repo_url = ""
-#   branch = ""
-#   github_action_configuration {
-
-#   }
-# }
