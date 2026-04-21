@@ -24,15 +24,6 @@ permissions:
   pull-requests: write
 
 jobs:
-  check:
-    runs-on: ubuntu-latest
-    environment:
-      name: ${{ case(github.ref_name == 'main', 'production', 'develop') }}
-    steps:
-      - name: show configuration
-        run: |
-          echo "${{ vars.AZURE_WEBAPP_NAME }} / ${{ env.IMAGE_PREFIX }} / ${{ secrets.AZURE_SP_CICD != '' && secrets.AZURE_SP_CICD != null }}"
-
   build-and-test:
     runs-on: ubuntu-latest
 
