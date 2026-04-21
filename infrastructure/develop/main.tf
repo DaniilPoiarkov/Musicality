@@ -28,5 +28,8 @@ module "webapp" {
   product_name                   = var.product_name
   docker_username                = var.docker_username
   docker_password                = var.docker_password
+  docker_image_name              = var.image_name
   app_insights_connection_string = module.monitoring.appi_connection_string
+  telegram_bot_token             = var.bot_token
+  telegram_secret_token          = var.secret_token
 }

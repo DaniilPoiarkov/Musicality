@@ -32,18 +32,20 @@ var app = builder.Build();
 
 var webhookUrl = builder.Configuration["Telegram:WebhookUrl"]
     ?? throw new InvalidOperationException("Cannot start an app without webhook url provided.");
-var secretToken = builder.Configuration["Telegram:SecretToken"];
 
-using (var scope = app.Services.CreateScope())
+var secretToken = builder.Configuration["Telegram:SecretToken"]
+    ?? throw new InvalidOperationException("Secret token for webhook url is not provided.");;
+
+await using (var scope = app.Services.CreateAsyncScope())
 {
     var bot = scope.ServiceProvider.GetRequiredService<ITelegramBotClient>();
-    var webhookInfo = await bot.GetWebhookInfo(cancellationToken: default);
+    var webhookInfo = await bot.GetWebhookInfo();
     if (webhookInfo.Url != webhookUrl)
     {
         await bot.SetWebhook(
             url: webhookUrl,
-            secretToken: string.IsNullOrEmpty(secretToken) ? null : secretToken,
-            cancellationToken: default);
+            secretToken: secretToken
+        );
     }
 }
 
