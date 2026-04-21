@@ -1,14 +1,31 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Eclipse.Core;
+using Eclipse.Core.Pipelines;
+using Eclipse.Core.Stores.InMemory;
+
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Musicality.Pipelines;
 
 public static class PipelinesLayer
 {
-    public static IServiceCollection AddPipelinesLayer(this IServiceCollection services)
+    public static IServiceCollection AddPipelinesLayer(this IServiceCollection services, IConfiguration configuration)
     {
-        // Register pipeline services here
+        services.AddCoreModule(core =>
+        {
+            core.UseInMemoryStores();
+            core.ConfigureOptions(options =>
+            {
+                configuration.GetSection("CoreOptions").Bind(options);
+            });
+        });
 
-        services.AddTransient<IUpdateHandler, UpdateHandler>();
+        foreach (var descriptor in services.Where(d => d.ServiceType == typeof(INotFoundPipeline)).ToList())
+        {
+            services.Remove(descriptor);
+        }
+
+        services.AddScoped<INotFoundPipeline, MusicDocumentNotFoundPipeline>();
 
         return services;
     }

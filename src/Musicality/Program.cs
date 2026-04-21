@@ -1,3 +1,4 @@
+using Musicality;
 using Musicality.Infrastructure;
 using Musicality.Pipelines;
 
@@ -12,9 +13,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-builder.Services.AddPipelinesLayer()
-    .AddInfrastructureLayer();
+builder.Services.AddScoped<TelegramSecretTokenFilter>();
 
+builder.Services.AddInfrastructureLayer()
+    .AddPipelinesLayer(builder.Configuration);
 
 // TODO: Normalize configuration access.
 builder.Services.AddHttpClient<ITelegramBotClient, TelegramBotClient>(
@@ -28,13 +30,22 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-using var scope = app.Services.CreateScope();
-var bot = scope.ServiceProvider.GetRequiredService<ITelegramBotClient>();
+var webhookUrl = builder.Configuration["Telegram:WebhookUrl"]
+    ?? throw new InvalidOperationException("Cannot start an app without webhook url provided.");
+var secretToken = builder.Configuration["Telegram:SecretToken"];
 
-// TODO: Refactor
-await bot.SetWebhook(builder.Configuration["Telegram:WebhookUrl"]
-    ?? throw new InvalidOperationException("Cannot start an app without webhook url provided.")
-);
+using (var scope = app.Services.CreateScope())
+{
+    var bot = scope.ServiceProvider.GetRequiredService<ITelegramBotClient>();
+    var webhookInfo = await bot.GetWebhookInfo(cancellationToken: default);
+    if (webhookInfo.Url != webhookUrl)
+    {
+        await bot.SetWebhook(
+            url: webhookUrl,
+            secretToken: string.IsNullOrEmpty(secretToken) ? null : secretToken,
+            cancellationToken: default);
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

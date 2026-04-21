@@ -14,4 +14,8 @@
     <ProjectReference Include="..\Musicality.Pipelines\Musicality.Pipelines.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="..\Musicality.Pipelines\libs\Eclipse.Core.dll" />
+  </ItemGroup>
+
 </Project>
