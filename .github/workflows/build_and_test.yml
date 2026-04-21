@@ -101,4 +101,3 @@ jobs:
       if: always()
       with:
         trx_files: ${{ github.workspace }}/**/*.trx
-
