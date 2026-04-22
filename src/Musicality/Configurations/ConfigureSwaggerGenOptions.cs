@@ -7,13 +7,19 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Musicality.Configurations;
 
-public sealed class ConfigureSwaggerGenOptions(
-    IApiVersionDescriptionProvider provider,
-    IOptions<OpenApiInfoOptions> openApiInfo)
+public sealed class ConfigureSwaggerGenOptions
     : IConfigureOptions<SwaggerGenOptions>
 {
-    private readonly IApiVersionDescriptionProvider _provider = provider;
-    private readonly IOptions<OpenApiInfoOptions> _openApiInfo = openApiInfo;
+    private readonly IApiVersionDescriptionProvider _provider;
+    private readonly IOptions<OpenApiInfoOptions> _openApiInfo;
+
+    public ConfigureSwaggerGenOptions(
+        IApiVersionDescriptionProvider provider,
+        IOptions<OpenApiInfoOptions> openApiInfo)
+    {
+        _provider = provider;
+        _openApiInfo = openApiInfo;
+    }
 
     public void Configure(SwaggerGenOptions options)
     {

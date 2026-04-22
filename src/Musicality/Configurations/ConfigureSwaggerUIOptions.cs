@@ -6,10 +6,15 @@ using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace Musicality.Configurations;
 
-public sealed class ConfigureSwaggerUIOptions(IApiVersionDescriptionProvider provider)
+public sealed class ConfigureSwaggerUIOptions
     : IConfigureOptions<SwaggerUIOptions>
 {
-    private readonly IApiVersionDescriptionProvider _provider = provider;
+    private readonly IApiVersionDescriptionProvider _provider;
+
+    public ConfigureSwaggerUIOptions(IApiVersionDescriptionProvider provider)
+    {
+        _provider = provider;
+    }
 
     public void Configure(SwaggerUIOptions options)
     {
