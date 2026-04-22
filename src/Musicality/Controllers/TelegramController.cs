@@ -1,4 +1,6 @@
-﻿using Eclipse.Core.Handlers;
+﻿using Asp.Versioning;
+
+using Eclipse.Core.Handlers;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,7 +9,8 @@ using Telegram.Bot.Types;
 
 namespace Musicality.Controllers;
 
-[Route("api/telegram")]
+[ApiVersion(1.0)]
+[Route("api/v{version:apiVersion}/telegram")]
 [ApiController]
 [ServiceFilter(typeof(TelegramSecretTokenFilter))]
 public sealed class TelegramController : ControllerBase

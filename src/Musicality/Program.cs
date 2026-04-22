@@ -1,4 +1,5 @@
 using Musicality;
+using Musicality.Configurations;
 using Musicality.Infrastructure;
 using Musicality.Pipelines;
 
@@ -12,6 +13,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddMusicalityApiVersioning();
+builder.Services.AddMusicalitySwagger(builder.Configuration);
 
 builder.Services.AddScoped<TelegramSecretTokenFilter>();
 
@@ -24,9 +27,6 @@ builder.Services.AddHttpClient<ITelegramBotClient, TelegramBotClient>(
 ).AddTransientHttpErrorPolicy(policy => policy.WaitAndRetryAsync(
     Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromSeconds(1), 5)
 ));
-
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
@@ -52,7 +52,7 @@ await using (var scope = app.Services.CreateAsyncScope())
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseMusicalitySwagger();
 }
 
 app.UseHttpsRedirection();
