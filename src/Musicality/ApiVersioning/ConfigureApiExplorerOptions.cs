@@ -2,7 +2,7 @@ using Asp.Versioning.ApiExplorer;
 
 using Microsoft.Extensions.Options;
 
-namespace Musicality.Configurations;
+namespace Musicality.ApiVersioning;
 
 public sealed class ConfigureApiExplorerOptions : IConfigureOptions<ApiExplorerOptions>
 {
