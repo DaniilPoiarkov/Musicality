@@ -27,7 +27,7 @@ resource "azurerm_linux_web_app" "app" {
 
   site_config {
     always_on           = (var.sku != "F1" && var.sku != "Free")
-    api_definition_url  = "https://${var.product_name}-${var.environment}-app.azurewebsites.net/swagger/index.html"
+    api_definition_url  = "https://app-${var.product_name}-${var.environment}.azurewebsites.net/swagger/index.html"
     ftps_state          = "FtpsOnly"
     http2_enabled       = true
     minimum_tls_version = "1.3"
@@ -55,13 +55,14 @@ resource "azurerm_linux_web_app" "app" {
   }
 
   app_settings = {
-    ASPNETCORE_ENVIRONMENT                     = var.environment
-    APPLICATIONINSIGHTS_CONNECTION_STRING      = var.app_insights_connection_string
-    ApplicationInsightsAgent_EXTENSION_VERSION = "~3"
-    XDT_MicrosoftApplicationInsights_Mode      = "Recommended"
-    Telegram__WebhookUrl                       = "https://app-${var.product_name}-${var.environment}.azurewebsites.net/api/v1/telegram/_handle"
-    Telegram__SecretToken                      = var.telegram_secret_token
-    Telegram__Token                            = var.telegram_bot_token
+    ASPNETCORE_ENVIRONMENT                      = var.environment
+    APPLICATIONINSIGHTS_CONNECTION_STRING       = var.app_insights_connection_string
+    ApplicationInsightsAgent_EXTENSION_VERSION  = "~3"
+    XDT_MicrosoftApplicationInsights_Mode       = "Recommended"
+    Telegram__WebhookUrl                        = "https://app-${var.product_name}-${var.environment}.azurewebsites.net/api/v1/telegram/_handle"
+    Telegram__SecretToken                       = var.telegram_secret_token
+    Telegram__Token                             = var.telegram_bot_token
+    Serilog__WriteTo__1__Args__connectionString = var.app_insights_connection_string
   }
 
   sticky_settings {
