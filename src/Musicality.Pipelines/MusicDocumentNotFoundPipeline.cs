@@ -49,73 +49,71 @@ internal sealed class MusicDocumentNotFoundPipeline : PipelineBase, INotFoundPip
 
     private async Task<IResult> ProcessDocumentAsync(MessageContext context, CancellationToken cancellationToken)
     {
-        return Text("Ok");
+        var update = _updateAccessor.Update;
 
-        //var update = _updateAccessor.Update;
+        if (update?.Message?.Document is null)
+        {
+            return Empty();
+        }
 
-        //if (update?.Message?.Document is null)
-        //{
-        //    return Empty();
-        //}
+        var message = update.Message!;
+        using var ms = new MemoryStream();
 
-        //var message = update.Message!;
-        //using var ms = new MemoryStream();
+        await _botClient.GetInfoAndDownloadFile(message.Document!.FileId, ms, cancellationToken);
 
-        //await _botClient.GetInfoAndDownloadFile(message.Document!.FileId, ms, cancellationToken);
+        var records = await _spreadsheetManager.Read<MusicUrlRecord>(ms, cancellationToken: cancellationToken);
 
-        //var records = await _spreadsheetManager.Read<MusicUrlRecord>(ms, cancellationToken: cancellationToken);
+        using var youtube = new YoutubeClient();
 
-        //using var youtube = new YoutubeClient();
+        var results = new List<IResult>();
 
-        //var results = new List<IResult>();
+        var path = Path.Combine(Path.GetTempPath(), context.ChatId.ToString());
 
-        //var path = Path.Combine(Path.GetTempPath(), context.ChatId.ToString());
+        foreach (var record in records)
+        {
+            if (string.IsNullOrEmpty(record.Url))
+            {
+                continue;
+            }
 
-        //foreach (var record in records)
-        //{
-        //    if (string.IsNullOrEmpty(record.Url))
-        //    {
-        //        continue;
-        //    }
+            var streamManifest = await youtube.Videos.Streams.GetManifestAsync(record.Url, cancellationToken);
 
-        //    var streamManifest = await youtube.Videos.Streams.GetManifestAsync(record.Url, cancellationToken);
+            var audioStreamInfo = streamManifest.GetAudioOnlyStreams()
+                .GetWithHighestBitrate();
 
-        //    var audioStreamInfo = streamManifest.GetAudioOnlyStreams()
-        //        .GetWithHighestBitrate();
+            if (audioStreamInfo is null)
+            {
+                _logger.LogWarning("No suitable audio streams found for URL {Url}", record.Url);
+                continue;
+            }
 
-        //    if (audioStreamInfo is null)
-        //    {
-        //        _logger.LogWarning("No suitable audio streams found for URL {Url}", record.Url);
-        //        continue;
-        //    }
+            var destinationPath = Path.Combine(path, $"{Path.GetRandomFileName()}.mp3");
 
-        //    var destinationPath = Path.Combine(path, $"{Path.GetRandomFileName()}.mp3");
+            try
+            {
+                await youtube.Videos.Streams.DownloadAsync(audioStreamInfo, destinationPath, cancellationToken: cancellationToken);
+                await using var stream = File.OpenRead(destinationPath);
+                await _botClient.SendAudio(context.ChatId, InputFile.FromStream(stream, "track.mp3"), cancellationToken: cancellationToken);
+                File.Delete(destinationPath);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to download or queue audio for URL {Url}", record.Url);
 
-        //    try
-        //    {
-        //        await youtube.Videos.Streams.DownloadAsync(audioStreamInfo, destinationPath, cancellationToken: cancellationToken);
-        //        await using var stream = File.OpenRead(destinationPath);
-        //        await _botClient.SendAudio(context.ChatId, InputFile.FromStream(stream, "track.mp3"), cancellationToken: cancellationToken);
-        //        File.Delete(destinationPath);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, "Failed to download or queue audio for URL {Url}", record.Url);
+                if (Directory.Exists(path))
+                {
+                    Directory.Delete(path, true);
+                }
 
-        //        if (Directory.Exists(path))
-        //        {
-        //            Directory.Delete(path, true);
-        //        }
+                return Text("Failed to download.");
+            }
+        }
 
-        //        return Text("Failed to download.");
-        //    }
-        //}
+        if (Directory.Exists(path))
+        {
+            Directory.Delete(path, true);
+        }
 
-        //if (Directory.Exists(path))
-        //{
-        //    Directory.Delete(path, true);
-        //}
-
-        //return Multiple([.. results]);
+        return Multiple([.. results]);
     }
 }
