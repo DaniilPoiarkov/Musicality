@@ -11,14 +11,9 @@ public static class PipelinesLayer
 {
     public static IServiceCollection AddPipelinesLayer(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddCoreModule(core =>
-        {
-            core.UseInMemoryStores();
-            core.ConfigureOptions(options =>
-            {
-                configuration.GetSection("CoreOptions").Bind(options);
-            });
-        });
+        services.AddCoreModule(core => core.UseInMemoryStores()
+            .ConfigureOptions(options => configuration.GetSection("CoreOptions").Bind(options))
+        );
 
         foreach (var descriptor in services.Where(d => d.ServiceType == typeof(INotFoundPipeline)).ToList())
         {

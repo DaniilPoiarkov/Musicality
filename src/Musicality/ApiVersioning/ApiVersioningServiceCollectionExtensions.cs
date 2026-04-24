@@ -1,9 +1,4 @@
-using Asp.Versioning;
-using Asp.Versioning.ApiExplorer;
-
-using Microsoft.Extensions.Options;
-
-namespace Musicality.Configurations;
+namespace Musicality.ApiVersioning;
 
 public static class ApiVersioningServiceCollectionExtensions
 {

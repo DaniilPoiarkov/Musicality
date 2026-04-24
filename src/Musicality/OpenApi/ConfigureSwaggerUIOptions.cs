@@ -4,10 +4,9 @@ using Microsoft.Extensions.Options;
 
 using Swashbuckle.AspNetCore.SwaggerUI;
 
-namespace Musicality.Configurations;
+namespace Musicality.OpenApi;
 
-public sealed class ConfigureSwaggerUIOptions
-    : IConfigureOptions<SwaggerUIOptions>
+public sealed class ConfigureSwaggerUIOptions : IConfigureOptions<SwaggerUIOptions>
 {
     private readonly IApiVersionDescriptionProvider _provider;
 
@@ -22,7 +21,8 @@ public sealed class ConfigureSwaggerUIOptions
         {
             options.SwaggerEndpoint(
                 $"/swagger/{description.GroupName}/swagger.json",
-                description.GroupName.ToUpperInvariant());
+                description.GroupName.ToUpperInvariant()
+            );
         }
     }
 }

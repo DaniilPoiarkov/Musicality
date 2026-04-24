@@ -1,64 +1,28 @@
 using Musicality;
-using Musicality.Configurations;
 using Musicality.Infrastructure;
+using Musicality.OpenApi;
 using Musicality.Pipelines;
-
-using Polly;
-using Polly.Contrib.WaitAndRetry;
-
-using Telegram.Bot;
+using Musicality.Telegram;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
-builder.Services.AddMusicalityApiVersioning();
-builder.Services.AddMusicalitySwagger(builder.Configuration);
-
-builder.Services.AddScoped<TelegramSecretTokenFilter>();
-
-builder.Services.AddInfrastructureLayer()
+builder.Services.AddPresentationLayer()
+    .AddInfrastructureLayer()
     .AddPipelinesLayer(builder.Configuration);
-
-// TODO: Normalize configuration access.
-builder.Services.AddHttpClient<ITelegramBotClient, TelegramBotClient>(
-    (client, sp) => new TelegramBotClient(builder.Configuration["Telegram:Token"]!, client)
-).AddTransientHttpErrorPolicy(policy => policy.WaitAndRetryAsync(
-    Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromSeconds(1), 5)
-));
 
 var app = builder.Build();
 
-var webhookUrl = builder.Configuration["Telegram:WebhookUrl"]
-    ?? throw new InvalidOperationException("Cannot start an app without webhook url provided.");
+await app.InitializeTelegramBotAsync();
 
-var secretToken = builder.Configuration["Telegram:SecretToken"]
-    ?? throw new InvalidOperationException("Secret token for webhook url is not provided.");;
-
-await using (var scope = app.Services.CreateAsyncScope())
-{
-    var bot = scope.ServiceProvider.GetRequiredService<ITelegramBotClient>();
-    var webhookInfo = await bot.GetWebhookInfo();
-    if (webhookInfo.Url != webhookUrl)
-    {
-        await bot.SetWebhook(
-            url: webhookUrl,
-            secretToken: secretToken
-        );
-    }
-}
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseMusicalitySwagger();
-}
+app.UseMusicalitySwagger();
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
+app.UseAuthentication()
+    .UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+await app.RunAsync();

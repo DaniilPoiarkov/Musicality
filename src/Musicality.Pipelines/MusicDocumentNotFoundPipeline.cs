@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Musicality.Common;
 
 using Telegram.Bot;
+using Telegram.Bot.Types;
 
 using YoutubeExplode;
 using YoutubeExplode.Videos.Streams;
@@ -22,8 +23,11 @@ namespace Musicality.Pipelines;
 internal sealed class MusicDocumentNotFoundPipeline : PipelineBase, INotFoundPipeline
 {
     private readonly ISpreadsheetManager _spreadsheetManager;
+
     private readonly ILogger<MusicDocumentNotFoundPipeline> _logger;
+
     private readonly ITelegramBotClient _botClient;
+
     private readonly IUpdateAccessor _updateAccessor;
 
     public MusicDocumentNotFoundPipeline(
@@ -63,6 +67,8 @@ internal sealed class MusicDocumentNotFoundPipeline : PipelineBase, INotFoundPip
 
         var results = new List<IResult>();
 
+        var path = Path.Combine(Path.GetTempPath(), context.ChatId.ToString());
+
         foreach (var record in records)
         {
             if (string.IsNullOrEmpty(record.Url))
@@ -78,33 +84,36 @@ internal sealed class MusicDocumentNotFoundPipeline : PipelineBase, INotFoundPip
             if (audioStreamInfo is null)
             {
                 _logger.LogWarning("No suitable audio streams found for URL {Url}", record.Url);
-                return Empty();
+                continue;
             }
 
-            var destinationPath = Path.Combine(Path.GetTempPath(), $"{Path.GetRandomFileName()}.mp3");
+            var destinationPath = Path.Combine(path, $"{Path.GetRandomFileName()}.mp3");
 
             try
             {
                 await youtube.Videos.Streams.DownloadAsync(audioStreamInfo, destinationPath, cancellationToken: cancellationToken);
-                results.Add(new SendAudioResult(destinationPath, "track.mp3"));
+                await using var stream = File.OpenRead(destinationPath);
+                await _botClient.SendAudio(context.ChatId, InputFile.FromStream(stream, "track.mp3"), cancellationToken: cancellationToken);
+                File.Delete(destinationPath);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to download or queue audio for URL {Url}", record.Url);
-                if (File.Exists(destinationPath))
+
+                if (Directory.Exists(path))
                 {
-                    File.Delete(destinationPath);
+                    Directory.Delete(path, true);
                 }
 
-                throw;
+                return Text("Failed to download.");
             }
         }
 
-        return results.Count switch
+        if (Directory.Exists(path))
         {
-            0 => Empty(),
-            1 => results[0],
-            _ => Multiple(results.ToArray()),
-        };
+            Directory.Delete(path, true);
+        }
+
+        return Multiple([.. results]);
     }
 }

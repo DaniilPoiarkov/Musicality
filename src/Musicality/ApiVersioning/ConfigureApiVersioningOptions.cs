@@ -2,7 +2,7 @@ using Asp.Versioning;
 
 using Microsoft.Extensions.Options;
 
-namespace Musicality.Configurations;
+namespace Musicality.ApiVersioning;
 
 public sealed class ConfigureApiVersioningOptions : IConfigureOptions<ApiVersioningOptions>
 {
