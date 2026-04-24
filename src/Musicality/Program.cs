@@ -1,5 +1,6 @@
 using Musicality;
 using Musicality.Infrastructure;
+using Musicality.Logging;
 using Musicality.OpenApi;
 using Musicality.Pipelines;
 using Musicality.Telegram;
@@ -11,6 +12,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddPresentationLayer()
     .AddInfrastructureLayer()
     .AddPipelinesLayer(builder.Configuration);
+
+builder.Host.AddMusicalityLogging();
 
 var app = builder.Build();
 
