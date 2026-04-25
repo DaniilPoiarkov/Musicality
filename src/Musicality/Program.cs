@@ -1,4 +1,5 @@
 using Musicality;
+using Musicality.Health;
 using Musicality.Infrastructure;
 using Musicality.Logging;
 using Musicality.OpenApi;
@@ -27,5 +28,7 @@ app.UseAuthentication()
     .UseAuthorization();
 
 app.MapControllers();
+
+app.UseMusicalityHealthChecks();
 
 await app.RunAsync();

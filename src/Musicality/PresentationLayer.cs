@@ -1,4 +1,5 @@
 ﻿using Musicality.ApiVersioning;
+using Musicality.Health;
 using Musicality.OpenApi;
 using Musicality.Telegram;
 
@@ -12,6 +13,7 @@ internal static class PresentationLayer
         services.AddMusicalityApiVersioning();
         services.AddMusicalitySwagger();
         services.AddTelegramBot();
+        services.AddMusicalityHealthChecks();
 
         return services;
     }
